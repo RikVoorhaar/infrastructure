@@ -24,4 +24,4 @@ services:
             - "traefik.http.routers.api.tls.certresolver=myresolver"
             - "traefik.http.routers.api.service=api@internal"
             - "traefik.http.routers.api.middlewares=auth"
-            - "traefik.http.middlewares.auth.basicauth.users=rik:${TRAEFIK_BASIC_AUTH_PASSWORD}"
+            - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_BASIC_AUTH}"

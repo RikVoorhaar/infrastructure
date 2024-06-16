@@ -1,0 +1,31 @@
+services:
+  portainer:
+    container_name: portainer
+    restart: always
+    # ports:
+    #   - 8000:8000
+    #   - 9443:9443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    image: portainer/portainer-ce:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.rikvoorhaar.com`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.service=portainer"
+      - "traefik.http.routers.portainer.tls.certresolver=myresolver"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+
+    networks:
+      - internal
+
+networks:
+  internal:
+  web:
+    external: true
+
+
+volumes:
+  portainer_data:
