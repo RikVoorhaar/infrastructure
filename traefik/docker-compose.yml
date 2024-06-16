@@ -11,6 +11,7 @@ services:
         volumes:
             - "/var/run/docker.sock:/var/run/docker.sock:ro"
             - "./traefik.yml:/etc/traefik/traefik.yml"
+            - "./conf:/etc/traefik/conf/"
             - "./acme.json:/etc/traefik/acme.json"
     dashboard:
         image: traefik:latest
@@ -24,4 +25,4 @@ services:
             - "traefik.http.routers.api.tls.certresolver=myresolver"
             - "traefik.http.routers.api.service=api@internal"
             - "traefik.http.routers.api.middlewares=auth"
-            - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_BASIC_AUTH}"
+            - "traefik.http.middlewares.auth.basicauth.users=rik:${TRAEFIK_BASIC_AUTH}"

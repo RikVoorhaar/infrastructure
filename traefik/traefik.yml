@@ -19,4 +19,7 @@ api:
     dashboard: true
 
 providers:
-    docker: {}
+  docker: {}
+  file:
+    directory: "/etc/traefik/conf/" # Adjust the path according your needs.
+    watch: true
