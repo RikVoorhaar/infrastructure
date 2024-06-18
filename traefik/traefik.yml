@@ -9,7 +9,8 @@ certificatesResolvers:
   myresolver:
     acme:
       email: rik.voorhaar@gmail.com
-      storage: acme.json
+      storage: /letsencrypt/acme.json
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
       httpChallenge:
         # used during the challenge
         entryPoint: web

@@ -12,7 +12,10 @@ services:
             - "/var/run/docker.sock:/var/run/docker.sock:ro"
             - "./traefik.yml:/etc/traefik/traefik.yml"
             - "./conf:/etc/traefik/conf/"
-            - "./acme.json:/etc/traefik/acme.json"
+            - "./letsencrypt:/letsencrypt"
+        labels:
+            - traefik.http.services.reverse-proxy.loadbalancer.server.port=1337
+
     dashboard:
         image: traefik:latest
         command:
