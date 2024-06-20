@@ -1,72 +1,205 @@
-services:
-  nextcloud-aio-mastercontainer:
-    image: nextcloud/all-in-one:latest
-    init: true
-    restart: always
-    container_name: nextcloud-aio-mastercontainer # This line is not allowed to be changed as otherwise AIO will not work correctly
-    volumes:
-      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config # This line is not allowed to be changed as otherwise the built-in backup solution will not work
-      - /var/run/docker.sock:/var/run/docker.sock:ro # May be changed on macOS, Windows or docker rootless. See the applicable documentation. If adjusting, don't forget to also set 'WATCHTOWER_DOCKER_SOCKET_PATH'!
-    # ports:
-      # - 80:80 # Can be removed when running behind a web server or reverse proxy (like Apache, Nginx, Cloudflare Tunnel and else). See https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md
-      # - 8080:8080
-      # - 8443:8443 # Can be removed when running behind a web server or reverse proxy (like Apache, Nginx, Cloudflare Tunnel and else). See https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md
-    environment: # Is needed when using any of the options below
-      # AIO_DISABLE_BACKUP_SECTION: false # Setting this to true allows to hide the backup section in the AIO interface. See https://github.com/nextcloud/all-in-one#how-to-disable-the-backup-section
-      APACHE_PORT: 11000 # Is needed when running behind a web server or reverse proxy (like Apache, Nginx, Cloudflare Tunnel and else). See https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md
-      APACHE_IP_BINDING: 127.0.0.1 # Should be set when running behind a web server or reverse proxy (like Apache, Nginx, Cloudflare Tunnel and else) that is running on the same host. See https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md
-      # BORG_RETENTION_POLICY: --keep-within=7d --keep-weekly=4 --keep-monthly=6 # Allows to adjust borgs retention policy. See https://github.com/nextcloud/all-in-one#how-to-adjust-borgs-retention-policy
-      # COLLABORA_SECCOMP_DISABLED: false # Setting this to true allows to disable Collabora's Seccomp feature. See https://github.com/nextcloud/all-in-one#how-to-disable-collaboras-seccomp-feature
-      # NEXTCLOUD_DATADIR: /mnt/ncdata # Allows to set the host directory for Nextcloud's datadir. ⚠️⚠️⚠️ Warning: do not set or adjust this value after the initial Nextcloud installation is done! See https://github.com/nextcloud/all-in-one#how-to-change-the-default-location-of-nextclouds-datadir
-      # NEXTCLOUD_MOUNT: /mnt/ # Allows the Nextcloud container to access the chosen directory on the host. See https://github.com/nextcloud/all-in-one#how-to-allow-the-nextcloud-container-to-access-directories-on-the-host
-      # NEXTCLOUD_UPLOAD_LIMIT: 10G # Can be adjusted if you need more. See https://github.com/nextcloud/all-in-one#how-to-adjust-the-upload-limit-for-nextcloud
-      # NEXTCLOUD_MAX_TIME: 3600 # Can be adjusted if you need more. See https://github.com/nextcloud/all-in-one#how-to-adjust-the-max-execution-time-for-nextcloud
-      # NEXTCLOUD_MEMORY_LIMIT: 512M # Can be adjusted if you need more. See https://github.com/nextcloud/all-in-one#how-to-adjust-the-php-memory-limit-for-nextcloud
-      # NEXTCLOUD_TRUSTED_CACERTS_DIR: /path/to/my/cacerts # CA certificates in this directory will be trusted by the OS of the nexcloud container (Useful e.g. for LDAPS) See See https://github.com/nextcloud/all-in-one#how-to-trust-user-defined-certification-authorities-ca
-      # NEXTCLOUD_STARTUP_APPS: deck twofactor_totp tasks calendar contacts notes # Allows to modify the Nextcloud apps that are installed on starting AIO the first time. See https://github.com/nextcloud/all-in-one#how-to-change-the-nextcloud-apps-that-are-installed-on-the-first-startup
-      # NEXTCLOUD_ADDITIONAL_APKS: imagemagick # This allows to add additional packages to the Nextcloud container permanently. Default is imagemagick but can be overwritten by modifying this value. See https://github.com/nextcloud/all-in-one#how-to-add-os-packages-permanently-to-the-nextcloud-container
-      # NEXTCLOUD_ADDITIONAL_PHP_EXTENSIONS: imagick # This allows to add additional php extensions to the Nextcloud container permanently. Default is imagick but can be overwritten by modifying this value. See https://github.com/nextcloud/all-in-one#how-to-add-php-extensions-permanently-to-the-nextcloud-container
-      # NEXTCLOUD_ENABLE_DRI_DEVICE: true # This allows to enable the /dev/dri device in the Nextcloud container. ⚠️⚠️⚠️ Warning: this only works if the '/dev/dri' device is present on the host! If it should not exist on your host, don't set this to true as otherwise the Nextcloud container will fail to start! See https://github.com/nextcloud/all-in-one#how-to-enable-hardware-transcoding-for-nextcloud
-      # NEXTCLOUD_KEEP_DISABLED_APPS: false # Setting this to true will keep Nextcloud apps that are disabled in the AIO interface and not uninstall them if they should be installed. See https://github.com/nextcloud/all-in-one#how-to-keep-disabled-apps
-      # TALK_PORT: 3478 # This allows to adjust the port that the talk container is using. See https://github.com/nextcloud/all-in-one#how-to-adjust-the-talk-port
-      # WATCHTOWER_DOCKER_SOCKET_PATH: /var/run/docker.sock # Needs to be specified if the docker socket on the host is not located in the default '/var/run/docker.sock'. Otherwise mastercontainer updates will fail. For macos it needs to be '/var/run/docker.sock'
-    # networks: # Is needed when you want to create the nextcloud-aio network with ipv6-support using this file, see the network config at the bottom of the file
-      # - nextcloud-aio # Is needed when you want to create the nextcloud-aio network with ipv6-support using this file, see the network config at the bottom of the file
-    # security_opt: ["label:disable"] # Is needed when using SELinux
+# Nextcloud with Let's Encrypt Using Docker Compose
 
-  # # Optional: Caddy reverse proxy. See https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md
-  # # You can find further examples here: https://github.com/nextcloud/all-in-one/discussions/588
-  # caddy:
-  #   image: caddy:alpine
-  #   restart: always
-  #   container_name: caddy
-  #   volumes:
-  #     - ./Caddyfile:/etc/caddy/Caddyfile
-  #     - ./certs:/certs
-  #     - ./config:/config
-  #     - ./data:/data
-  #     - ./sites:/srv
-  #   network_mode: "host"
-    networks:
-      - internal
+# The complete installation guide is available on my website https://www.heyvaldemar.com/install-nextcloud-using-docker-compose/
+
+# Change variables in the `.env` to meet your requirements.
+# Note that the `.env` file should be in the same directory as `nextcloud-traefik-letsencrypt-docker-compose.yml`.
+
+# Create networks for your services before deploying the configuration using the commands:
+# `docker network create traefik-network`
+# `docker network create nextcloud-network`
+
+# Deploy Nextcloud using Docker Compose:
+# `docker compose -f nextcloud-traefik-letsencrypt-docker-compose.yml -p nextcloud up -d`
+
+# Backups
+# The `backups` container in the configuration is responsible for the following:
+# 1. **Database Backup**: Creates compressed backups of the PostgreSQL database using pg_dump.
+# Customizable backup path, filename pattern, and schedule through variables like `POSTGRES_BACKUPS_PATH`, `POSTGRES_BACKUP_NAME`, and `BACKUP_INTERVAL`.
+# 2. **Application Data Backup**: Compresses and stores backups of the application data on the same schedule. Controlled via variables such as `DATA_BACKUPS_PATH`, `DATA_BACKUP_NAME`, and `BACKUP_INTERVAL`.
+# 3. **Backup Pruning**: Periodically removes backups exceeding a specified age to manage storage.
+# Customizable pruning schedule and age threshold with `POSTGRES_BACKUP_PRUNE_DAYS` and `DATA_BACKUP_PRUNE_DAYS`.
+# By utilizing this container, consistent and automated backups of the essential components of your instance are ensured.
+# Moreover, efficient management of backup storage and tailored backup routines can be achieved through easy and flexible configuration using environment variables.
+
+# # nextcloud-restore-database.sh Description
+# This script facilitates the restoration of a database backup.
+# 1. **Identify Containers**: It first identifies the service and backups containers by name, finding the appropriate container IDs.
+# 2. **List Backups**: Displays all available database backups located at the specified backup path.
+# 3. **Select Backup**: Prompts the user to copy and paste the desired backup name from the list to restore the database.
+# 4. **Stop Service**: Temporarily stops the service to ensure data consistency during restoration.
+# 5. **Restore Database**: Executes a sequence of commands to drop the current database, create a new one, and restore it from the selected compressed backup file.
+# 6. **Start Service**: Restarts the service after the restoration is completed.
+# To make the `nextcloud-restore-database.shh` script executable, run the following command:
+# `chmod +x nextcloud-restore-database.sh`
+# Usage of this script ensures a controlled and guided process to restore the database from an existing backup.
+
+# # nextcloud-restore-application-data.sh Description
+# This script is designed to restore the application data.
+# 1. **Identify Containers**: Similarly to the database restore script, it identifies the service and backups containers by name.
+# 2. **List Application Data Backups**: Displays all available application data backups at the specified backup path.
+# 3. **Select Backup**: Asks the user to copy and paste the desired backup name for application data restoration.
+# 4. **Stop Service**: Stops the service to prevent any conflicts during the restore process.
+# 5. **Restore Application Data**: Removes the current application data and then extracts the selected backup to the appropriate application data path.
+# 6. **Start Service**: Restarts the service after the application data has been successfully restored.
+# To make the `nextcloud-restore-application-data.sh` script executable, run the following command:
+# `chmod +x nextcloud-restore-application-data.sh`
+# By utilizing this script, you can efficiently restore application data from an existing backup while ensuring proper coordination with the running service.
+
+# Author
+# I’m Vladimir Mikhalev, the Docker Captain, but my friends can call me Valdemar.
+# https://www.docker.com/captains/vladimir-mikhalev/
+
+# My website with detailed IT guides: https://www.heyvaldemar.com/
+# Follow me on YouTube: https://www.youtube.com/channel/UCf85kQ0u1sYTTTyKVpxrlyQ?sub_confirmation=1
+# Follow me on Twitter: https://twitter.com/heyValdemar
+# Follow me on Instagram: https://www.instagram.com/heyvaldemar/
+# Follow me on Threads: https://www.threads.net/@heyvaldemar
+# Follow me on Mastodon: https://mastodon.social/@heyvaldemar
+# Follow me on Bluesky: https://bsky.app/profile/heyvaldemar.bsky.social
+# Follow me on Facebook: https://www.facebook.com/heyValdemarFB/
+# Follow me on TikTok: https://www.tiktok.com/@heyvaldemar
+# Follow me on LinkedIn: https://www.linkedin.com/in/heyvaldemar/
+# Follow me on GitHub: https://github.com/heyvaldemar
+
+# Communication
+# Chat with IT pros on Discord: https://discord.gg/AJQGCCBcqf
+# Reach me at ask@sre.gg
+
+# Give Thanks
+# Support on GitHub: https://github.com/sponsors/heyValdemar
+# Support on Patreon: https://www.patreon.com/heyValdemar
+# Support on BuyMeaCoffee: https://www.buymeacoffee.com/heyValdemar
+# Support on Ko-fi: https://ko-fi.com/heyValdemar
+# Support on PayPal: https://www.paypal.com/paypalme/heyValdemarCOM
 
 networks:
-  internal:
-  web:
+  nextcloud-network:
     external: true
+  internal:
 
-volumes: # If you want to store the data on a different drive, see https://github.com/nextcloud/all-in-one#how-to-store-the-filesinstallation-on-a-separate-drive
-  nextcloud_aio_mastercontainer:
-    name: nextcloud_aio_mastercontainer # This line is not allowed to be changed as otherwise the built-in backup solution will not work
+volumes:
+  nextcloud-data:
+  redis-data:
+  nextcloud-postgres:
+  nextcloud-postgres-backup:
+  nextcloud-data-backups:
+  nextcloud-database-backups:
+  traefik-certificates:
 
-# # Optional: If you need ipv6, follow step 1 and 2 of https://github.com/nextcloud/all-in-one/blob/main/docker-ipv6-support.md first and then uncomment the below config in order to activate ipv6 for the internal nextcloud-aio network.
-# # Please make sure to uncomment also the networking lines of the mastercontainer above in order to actually create the network with docker-compose
-# networks:
-#   nextcloud-aio:
-#     name: nextcloud-aio # This line is not allowed to be changed as otherwise the created network will not be used by the other containers of AIO
-#     driver: bridge
-#     enable_ipv6: true
-#     ipam:
-#       driver: default
-#       config:
-#         - subnet: fd12:3456:789a:2::/64 # IPv6 subnet to use
+services:
+  postgres:
+    image: ${NEXTCLOUD_POSTGRES_IMAGE_TAG}
+    volumes:
+      - nextcloud-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${NEXTCLOUD_DB_NAME}
+      POSTGRES_USER: ${NEXTCLOUD_DB_USER}
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD}
+    networks:
+      - nextcloud-network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${NEXTCLOUD_DB_NAME}", "-U", "${NEXTCLOUD_DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  redis:
+    image: ${NEXTCLOUD_REDIS_IMAGE_TAG}
+    command: ["redis-server", "--requirepass", "$NEXTCLOUD_REDIS_PASSWORD"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - nextcloud-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  nextcloud:
+    image: ${NEXTCLOUD_IMAGE_TAG}
+    volumes:
+      - nextcloud-data:${DATA_PATH}
+    environment:
+      TZ: ${NEXTCLOUD_TIMEZONE}
+      POSTGRES_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${NEXTCLOUD_DB_NAME}
+      POSTGRES_USER: ${NEXTCLOUD_DB_USER}
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_HOST_PORT: 6379
+      REDIS_HOST_PASSWORD: ${NEXTCLOUD_REDIS_PASSWORD}
+      NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USERNAME}
+      NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_HOSTNAME}
+      TRUSTED_PROXIES: ${NEXTCLOUD_HOSTNAME}
+      OVERWRITECLIURL: ${NEXTCLOUD_URL}
+      OVERWRITEPROTOCOL: https
+      OVERWRITEHOST: ${NEXTCLOUD_HOSTNAME}
+    networks:
+      - nextcloud-network
+      - internal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`${NEXTCLOUD_HOSTNAME}`)"
+      - "traefik.http.routers.nextcloud.service=nextcloud"
+      - "traefik.http.routers.nextcloud.entrypoints=websecure"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+      - "traefik.http.routers.nextcloud.tls=true"
+      - "traefik.http.services.nextcloud.loadbalancer.passhostheader=true"
+      # - "traefik.http.routers.nextcloud.middlewares=compresstraefik"
+      # - "traefik.http.middlewares.compresstraefik.compress=true"
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+
+  # backups:
+  #   image: ${NEXTCLOUD_POSTGRES_IMAGE_TAG}
+  #   command: >-
+  #     sh -c 'sleep $BACKUP_INIT_SLEEP &&
+  #     while true; do
+  #       pg_dump -h postgres -p 5432 -d $NEXTCLOUD_DB_NAME -U $NEXTCLOUD_DB_USER | gzip > $POSTGRES_BACKUPS_PATH/$POSTGRES_BACKUP_NAME-$(date "+%Y-%m-%d_%H-%M").gz &&
+  #       tar -zcpf $DATA_BACKUPS_PATH/$DATA_BACKUP_NAME-$(date "+%Y-%m-%d_%H-%M").tar.gz $DATA_PATH &&
+  #       find $POSTGRES_BACKUPS_PATH -type f -mtime +$POSTGRES_BACKUP_PRUNE_DAYS | xargs rm -f &&
+  #       find $DATA_BACKUPS_PATH -type f -mtime +$DATA_BACKUP_PRUNE_DAYS | xargs rm -f;
+  #       sleep $BACKUP_INTERVAL; done'
+  #   volumes:
+  #     - nextcloud-postgres-backup:/var/lib/postgresql/data
+  #     - nextcloud-data:${DATA_PATH}
+  #     - nextcloud-data-backups:${DATA_BACKUPS_PATH}
+  #     - nextcloud-database-backups:${POSTGRES_BACKUPS_PATH}
+  #   environment:
+  #     NEXTCLOUD_DB_NAME: ${NEXTCLOUD_DB_NAME}
+  #     NEXTCLOUD_DB_USER: ${NEXTCLOUD_DB_USER}
+  #     PGPASSWORD: ${NEXTCLOUD_DB_PASSWORD}
+  #     BACKUP_INIT_SLEEP: ${BACKUP_INIT_SLEEP}
+  #     BACKUP_INTERVAL: ${BACKUP_INTERVAL}
+  #     POSTGRES_BACKUP_PRUNE_DAYS: ${POSTGRES_BACKUP_PRUNE_DAYS}
+  #     DATA_BACKUP_PRUNE_DAYS: ${DATA_BACKUP_PRUNE_DAYS}
+  #     POSTGRES_BACKUPS_PATH: ${POSTGRES_BACKUPS_PATH}
+  #     DATA_BACKUPS_PATH: ${DATA_BACKUPS_PATH}
+  #     DATA_PATH: ${DATA_PATH}
+  #     POSTGRES_BACKUP_NAME: ${POSTGRES_BACKUP_NAME}
+  #     DATA_BACKUP_NAME: ${DATA_BACKUP_NAME}
+  #   networks:
+  #     - nextcloud-network
+  #   restart: unless-stopped
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
