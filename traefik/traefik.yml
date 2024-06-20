@@ -5,22 +5,29 @@ entryPoints:
     websecure:
         address: ":443"
 
-certificatesResolvers:
-  myresolver:
-    acme:
-      email: rik.voorhaar@gmail.com
-      storage: /letsencrypt/acme.json
-      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
-      httpChallenge:
-        # used during the challenge
-        entryPoint: web
+tls:
+  certificates:
+    - certFile: /etc/traefik/keys/rikvoorhaar.com.cer
+      keyFile: /etc/traefik/keys/rikvoorhaar.com.key
+
+# certificatesResolvers:
+#   myresolver:
+#     acme:
+#       email: rik.voorhaar@gmail.com
+#       storage: /letsencrypt/acme.json
+#       caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+#       httpChallenge:
+#         # used during the challenge
+#         entryPoint: web
 
 
 api:
     dashboard: true
 
 providers:
-  docker: {}
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
   file:
     directory: "/etc/traefik/conf/" # Adjust the path according your needs.
     watch: true

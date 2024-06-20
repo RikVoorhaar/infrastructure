@@ -1,35 +1,32 @@
 http:
   routers:
     nextcloud:
-      rule: "Host(`nextcloud.rikvoorhaar.com`)"
       entrypoints:
         - "websecure"
-      service: nextcloud
-      # middlewares:
-      #   - nextcloud-chain
+      rule: "Host(`nextcloud.rikvoorhaar.com`)"
+      middlewares:
+        - https-redirect
+        - nextcloud-secure-headers
       tls:
-        certresolver: "myresolver"
-
+        domains:
+          - main: ""
+      service: nextcloud
   services:
     nextcloud:
       loadBalancer:
         servers:
-          - port: "http://localhost:11000" # Use the host's IP address if Traefik runs outside the host network
-
+          - url: "http://:11000"
+        passHostHeader: true
   middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
     nextcloud-secure-headers:
       headers:
         hostsProxyHeaders:
           - "X-Forwarded-Host"
         referrerPolicy: "same-origin"
-
-    https-redirect:
-      redirectscheme:
-        scheme: https 
-
-    nextcloud-chain:
-      chain:
-        middlewares:
-          # - ... (e.g. rate limiting middleware)
-          - https-redirect
-          - nextcloud-secure-headers
+        customResponseHeaders:
+          X-Robots-Tag: "none"
