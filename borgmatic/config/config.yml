@@ -25,13 +25,12 @@ checks:
   - name: data
     frequency: 1 month
 
-hooks:
-    before_backup:
-        - echo "Starting a backup job."
-    after_backup:
-        - echo "Backup created."
-    on_error:
-        - echo "Error while creating a backup."
+before_backup:
+    - echo "Starting a backup job."
+after_backup:
+    - echo "Backup created."
+on_error:
+    - echo "Error while creating a backup."
 
 before_everything:
     - echo "Starting a backup job."
@@ -40,5 +39,5 @@ after_everything:
 on_error:
     - echo "Error while creating a backup."
 
-healthchecks:
-    ping_url: ${BORG_HEALTHCHECK_URL}
+# healthchecks:
+#     ping_url: ${BORG_HEALTHCHECK_URL}

@@ -7,7 +7,7 @@ services:
       - SYS_ADMIN
 
     volumes:
-      - /host/mount/location:/restore
+      - /home/rik/backup:/restore
 
     security_opt:
       - apparmor:unconfined
