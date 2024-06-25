@@ -38,6 +38,11 @@ after_everything:
     - echo "Backup created."
 on_error:
     - echo "Error while creating a backup."
-
+loki:
+    url: https:/loki.rikvoorhaar.com/loki/api/v1/push
+    labels:
+        instance: borgmatic
+        app: borgmatic
+        hostname: __hostname
 # healthchecks:
 #     ping_url: ${BORG_HEALTHCHECK_URL}
