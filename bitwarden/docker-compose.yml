@@ -1,0 +1,37 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    ports:
+     - 9445:80
+    volumes:
+     - ./bitwarden:/data:rw
+    environment:
+     - ADMIN_TOKEN=${ADMIN_TOKEN}
+     - WEBSOCKET_ENABLED=true
+     - SIGNUPS_ALLOWED=false
+     - SMTP_HOST=${SMTP_HOST}
+     - SMTP_FROM=${SMTP_FROM}
+     - SMTP_PORT=${SMTP_PORT}
+     - SMTP_SSL=${SMTP_SSL}
+     - SMTP_USERNAME=${SMTP_USERNAME}
+     - SMTP_PASSWORD=${SMTP_PASSWORD}
+     - DOMAIN=${DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bitwarden.rule=Host(`bitwarden.rikvoorhaar.com`)"
+      - "traefik.http.routers.bitwarden.entrypoints=websecure"
+      - "traefik.http.routers.bitwarden.tls=true"
+      - "traefik.http.routers.bitwarden.tls.certresolver=myresolver"
+    networks:
+      - internal
+    logging:
+      driver: loki
+      options:
+        loki-url: "https://loki.rikvoorhaar.com/loki/api/v1/push"
+
+networks:
+  internal:
+  web:
+    external: true
