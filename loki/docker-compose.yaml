@@ -6,7 +6,7 @@ services:
     image: grafana/loki:2.9.2
     # ports:
     #   - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/config/loki.yml
     networks:
       - loki
     labels:
@@ -15,18 +15,30 @@ services:
       - "traefik.http.routers.loki.entrypoints=websecure"
       - "traefik.http.routers.loki.tls=true"
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
+    volumes:
+      - ./config/loki.yml:/etc/loki/config/loki.yml
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
 
   promtail:
     image: grafana/promtail:2.9.2
     volumes:
       - /var/log:/var/log
-    command: -config.file=/etc/promtail/config.yml
+      - ./config/promtail.yml:/etc/promtail/config/promtail.yml
+    command: -config.file=/etc/promtail/config/promtail.yml
     networks:
       - loki
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
 
   grafana:
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_PATHS_CONFIG=/etc/grafana/config/grafana.ini
       # - GF_AUTH_ANONYMOUS_ENABLED=true
       # - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     entrypoint:
@@ -53,6 +65,7 @@ services:
     #   - "3000:3000"
     volumes:
       - "./grafana-data/:/var/lib/grafana"
+      - "./config/grafana.ini:/etc/grafana/config/grafana.ini"
     networks:
       - loki
     labels:
@@ -61,3 +74,7 @@ services:
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"

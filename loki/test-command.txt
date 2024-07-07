@@ -1,0 +1,8 @@
+curl -H "Content-Type: application/json" \
+  -s -X POST "https://loki.rikvoorhaar.com/loki/api/v1/push" \
+  --data-raw '{"streams": [{ "stream": { "foo": "bar2" }, "values": [ [ "1719555257000000000", "fizzbuzz" ] ] }]}'
+
+
+curl -G -s  "https://loki.rikvoorhaar.com/loki/api/v1/query_range" \
+  --data-urlencode 'query=sum(rate({job="varlogs"}[10m])) by (level)' \
+  --data-urlencode 'step=300' | jq
