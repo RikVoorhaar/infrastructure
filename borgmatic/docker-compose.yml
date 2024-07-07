@@ -13,3 +13,4 @@ services:
     environment:
       - TZ=${TZ}
       - BORG_PASSPHRASE=${BORG_PASSPHRASE}
+      - BORG_HEALTHCHECK_URL=${BORG_HEALTHCHECK_URL}
