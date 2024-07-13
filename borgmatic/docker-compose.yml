@@ -1,6 +1,7 @@
 services:
   borgmatic:
-    image: ghcr.io/borgmatic-collective/borgmatic
+    # image: ghcr.io/borgmatic-collective/borgmatic
+    build: .
     container_name: borgmatic
     volumes:
       - ${VOLUME_SOURCE}:/mnt/source:ro            # backup source
@@ -14,3 +15,5 @@ services:
       - TZ=${TZ}
       - BORG_PASSPHRASE=${BORG_PASSPHRASE}
       - BORG_HEALTHCHECK_URL=${BORG_HEALTHCHECK_URL}
+      - TUNNEL_SERVICE_TOKEN_ID=${TUNNEL_SERVICE_TOKEN_ID}
+      - TUNNEL_SERVICE_TOKEN_SECRET=${TUNNEL_SERVICE_TOKEN_SECRET}
