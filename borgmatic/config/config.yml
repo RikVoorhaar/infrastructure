@@ -7,8 +7,6 @@ repositories:
       label: remote
 one_file_system: true
 
-#   Passphase is set in varibable $BORG_PASSPHRASE
-#   encryption_passphrase: "DoNotForgetToChangeYourPassphrase"
 compression: lz4
 archive_name_format: 'backup-{now}'
 
@@ -17,6 +15,9 @@ keep_daily: 7
 keep_weekly: 4
 keep_monthly: 12
 keep_yearly: 10
+
+retries: 3
+retry_wait: 10
 
 checks:
   - name: repository
@@ -36,16 +37,9 @@ on_error:
     - echo "Error while creating a backup."
 
 before_everything:
-    - echo "Starting a backup job."
+    - echo "Borg is staring."
 after_everything:
-    - echo "Backup created."
-on_error:
-    - echo "Error while creating a backup."
-# loki:
-#     url: https:/loki.rikvoorhaar.com/loki/api/v1/push
-#     labels:
-#         instance: borgmatic
-#         app: borgmatic
-#         hostname: __hostname
+    - echo "All backups done."
+
 healthchecks:
     ping_url: ${BORG_HEALTHCHECK_URL}
